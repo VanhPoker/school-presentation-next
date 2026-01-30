@@ -1,0 +1,12 @@
+#dropbox {
+    & .ProseMirror {
+        padding-top: 0;
+        padding-bottom: 0;
+    }
+}
+
+.dropbox-quiz {
+    .tiptap {
+        caret-color: black !important;
+    }
+}

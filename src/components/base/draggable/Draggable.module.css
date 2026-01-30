@@ -1,0 +1,10 @@
+.Draggable {
+    position: fixed;
+    display: flex;
+    z-index: 99999;
+    transition: transform 250ms ease;
+}
+.Draggable > div {
+    transform: translate3d(var(--translate-x, 0), var(--translate-y, 0), 0) scale(var(--scale, 1));
+    transition: box-shadow 300ms ease;
+}

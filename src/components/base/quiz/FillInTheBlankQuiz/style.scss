@@ -1,0 +1,12 @@
+#fill-in-the-blank {
+    & .ProseMirror {
+        padding-top: 0;
+        padding-bottom: 0;
+    }
+}
+
+.fill-in-the-blank-quiz {
+    .tiptap {
+        caret-color: black !important;
+    }
+}

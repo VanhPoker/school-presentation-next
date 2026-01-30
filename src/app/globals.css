@@ -1,26 +1,425 @@
-@import "tailwindcss";
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap");
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+/* 
+  Design System: Trường học số Quốc gia - Module Presentation
+  Modern education platform with clean, professional aesthetics
+*/
 
-@media (prefers-color-scheme: dark) {
+@layer base {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    /* Core backgrounds */
+    --background: 210 20% 98%;
+    --foreground: 220 25% 10%;
+
+    /* Cards and surfaces */
+    --card: 0 0% 100%;
+    --card-foreground: 220 25% 10%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 25% 10%;
+
+    /* Primary: Teal/Cyan - Trust, Education, Innovation */
+    --primary: 187 85% 43%;
+    --primary-foreground: 0 0% 100%;
+    --primary-hover: 187 90% 38%;
+    --primary-glow: 187 100% 50%;
+
+    /* Secondary: Cool gray for subtle UI */
+    --secondary: 214 20% 94%;
+    --secondary-foreground: 220 20% 25%;
+
+    /* Muted: Soft backgrounds */
+    --muted: 214 25% 96%;
+    --muted-foreground: 215 16% 47%;
+
+    /* Accent: Vibrant Orange for CTAs */
+    --accent: 25 95% 53%;
+    --accent-foreground: 0 0% 100%;
+    --accent-hover: 25 95% 48%;
+
+    /* Success/Warning/Error */
+    --success: 158 64% 42%;
+    --success-foreground: 0 0% 100%;
+    --warning: 43 96% 56%;
+    --warning-foreground: 20 14% 20%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    /* Purple for special features */
+    --feature: 262 83% 58%;
+    --feature-foreground: 0 0% 100%;
+
+    /* UI elements */
+    --border: 214 25% 90%;
+    --input: 214 25% 90%;
+    --ring: 187 85% 43%;
+
+    --radius: 0.75rem;
+
+    /* Sidebar */
+    --sidebar-background: 220 25% 8%;
+    --sidebar-foreground: 214 25% 90%;
+    --sidebar-primary: 187 85% 50%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 220 20% 15%;
+    --sidebar-accent-foreground: 214 25% 90%;
+    --sidebar-border: 220 20% 18%;
+    --sidebar-ring: 187 85% 50%;
+
+    /* Canvas/Editor */
+    --canvas-bg: 220 15% 95%;
+    --canvas-grid: 220 15% 88%;
+    --canvas-selection: 187 85% 50%;
+
+    /* Gradients */
+    --gradient-primary: linear-gradient(
+      135deg,
+      hsl(187 85% 43%),
+      hsl(200 85% 45%)
+    );
+    --gradient-accent: linear-gradient(
+      135deg,
+      hsl(25 95% 53%),
+      hsl(35 95% 55%)
+    );
+    --gradient-hero: linear-gradient(135deg, hsl(220 25% 8%), hsl(220 30% 15%));
+    --gradient-card: linear-gradient(180deg, hsl(0 0% 100%), hsl(214 25% 98%));
+    --gradient-sidebar: linear-gradient(
+      180deg,
+      hsl(220 25% 10%),
+      hsl(220 30% 6%)
+    );
+
+    /* Shadows */
+    --shadow-sm: 0 1px 2px 0 hsl(220 25% 10% / 0.05);
+    --shadow-md:
+      0 4px 6px -1px hsl(220 25% 10% / 0.08),
+      0 2px 4px -2px hsl(220 25% 10% / 0.06);
+    --shadow-lg:
+      0 10px 15px -3px hsl(220 25% 10% / 0.1),
+      0 4px 6px -4px hsl(220 25% 10% / 0.08);
+    --shadow-xl:
+      0 20px 25px -5px hsl(220 25% 10% / 0.1),
+      0 8px 10px -6px hsl(220 25% 10% / 0.08);
+    --shadow-glow: 0 0 30px -5px hsl(187 85% 50% / 0.4);
+    --shadow-accent-glow: 0 0 20px -5px hsl(25 95% 53% / 0.4);
+  }
+
+  .dark {
+    --background: 220 25% 6%;
+    --foreground: 214 25% 95%;
+
+    --card: 220 25% 10%;
+    --card-foreground: 214 25% 95%;
+
+    --popover: 220 25% 10%;
+    --popover-foreground: 214 25% 95%;
+
+    --primary: 187 85% 50%;
+    --primary-foreground: 220 25% 6%;
+    --primary-hover: 187 90% 55%;
+
+    --secondary: 220 20% 18%;
+    --secondary-foreground: 214 20% 85%;
+
+    --muted: 220 20% 15%;
+    --muted-foreground: 215 16% 60%;
+
+    --accent: 25 95% 55%;
+    --accent-foreground: 0 0% 100%;
+
+    --border: 220 20% 18%;
+    --input: 220 20% 18%;
+    --ring: 187 85% 50%;
+
+    --sidebar-background: 220 30% 4%;
+    --sidebar-foreground: 214 25% 90%;
+    --sidebar-accent: 220 25% 12%;
+    --sidebar-border: 220 20% 12%;
+
+    --canvas-bg: 220 20% 10%;
+    --canvas-grid: 220 20% 15%;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer base {
+  * {
+    border-color: hsl(var(--border));
+  }
+
+  body {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+    font-family: "Inter", system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: "Space Grotesk", system-ui, sans-serif;
+    letter-spacing: -0.025em;
+    font-weight: 600;
+  }
+}
+
+@layer components {
+  /* Primary gradient button */
+  .btn-primary-gradient {
+    position: relative;
+    overflow: hidden;
+    color: hsl(var(--primary-foreground));
+    font-weight: 500;
+    transition-property: all;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 300ms;
+    background: var(--gradient-primary);
+    box-shadow: var(--shadow-md);
+  }
+
+  .btn-primary-gradient:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-glow);
+  }
+
+  /* Accent button */
+  .btn-accent {
+    position: relative;
+    overflow: hidden;
+    font-weight: 500;
+    transition-property: all;
+    transition-duration: 300ms;
+    background: hsl(var(--accent));
+    color: hsl(var(--accent-foreground));
+    box-shadow: var(--shadow-md);
+  }
+
+  .btn-accent:hover {
+    background: hsl(var(--accent-hover));
+    box-shadow: var(--shadow-accent-glow);
+    transform: translateY(-1px);
+  }
+
+  /* Glass effect card */
+  .glass-card {
+    backdrop-filter: blur(24px);
+    border: 1px solid hsl(var(--border) / 0.5);
+    background: hsl(var(--card) / 0.8);
+    box-shadow: var(--shadow-lg);
+  }
+
+  /* Sidebar item */
+  .sidebar-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.625rem 0.75rem;
+    border-radius: var(--radius);
+    color: hsl(var(--sidebar-foreground) / 0.7);
+    transition-property: all;
+    transition-duration: 200ms;
+  }
+
+  .sidebar-item:hover {
+    background-color: hsl(var(--sidebar-accent));
+    color: hsl(var(--sidebar-foreground));
+  }
+
+  .sidebar-item.active {
+    background-color: hsl(var(--sidebar-accent));
+    color: hsl(var(--sidebar-primary));
+    font-weight: 500;
+  }
+
+  .slide-thumbnail {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    border-radius: var(--radius);
+    overflow: hidden;
+    border: 2px solid transparent;
+    transition-property: all;
+    transition-duration: 200ms;
+    cursor: pointer;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .slide-thumbnail:hover {
+    border-color: hsl(var(--primary) / 0.5);
+    box-shadow: var(--shadow-md);
+  }
+
+  .slide-thumbnail.active {
+    border-color: hsl(var(--primary));
+    box-shadow: var(--shadow-glow);
+    /* ring-2 ring-primary/30 equivalent */
+    box-shadow:
+      0 0 0 2px hsl(var(--primary) / 0.3),
+      var(--shadow-glow);
+  }
+
+  /* Editor toolbar */
+  .editor-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.375rem;
+    border-radius: 0.75rem;
+    background: hsl(var(--card));
+    box-shadow: var(--shadow-lg);
+  }
+
+  .toolbar-btn {
+    padding: 0.5rem;
+    border-radius: var(--radius);
+    color: hsl(var(--muted-foreground));
+    transition-property: all;
+    transition-duration: 150ms;
+  }
+
+  .toolbar-btn:hover {
+    background-color: hsl(var(--secondary));
+    color: hsl(var(--foreground));
+  }
+
+  .toolbar-btn.active {
+    background-color: hsl(var(--primary));
+    color: hsl(var(--primary-foreground));
+  }
+
+  /* Analytics card */
+  .analytics-card {
+    padding: 1rem;
+    border-radius: 0.75rem;
+    border: 1px solid hsl(var(--border) / 0.5);
+    background: var(--gradient-card);
+    box-shadow: var(--shadow-sm);
+  }
+
+  /* Live indicator */
+  .live-indicator {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.375rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    line-height: 1rem;
+    font-weight: 600;
+    background: hsl(var(--destructive) / 0.15);
+    color: hsl(var(--destructive));
+  }
+
+  .live-indicator::before {
+    content: "";
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 9999px;
+    animation: ping 1s cubic-bezier(0, 0, 0.2, 1) infinite;
+    background: hsl(var(--destructive));
+  }
+
+  /* Scrollbar styling */
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    border-radius: 9999px;
+    background: hsl(var(--muted-foreground) / 0.3);
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--muted-foreground) / 0.5);
+  }
+}
+
+@layer utilities {
+  /* Text gradient */
+  .text-gradient-primary {
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .text-gradient-accent {
+    background: var(--gradient-accent);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Animation delays */
+  .animation-delay-100 {
+    animation-delay: 100ms;
+  }
+  .animation-delay-200 {
+    animation-delay: 200ms;
+  }
+  .animation-delay-300 {
+    animation-delay: 300ms;
+  }
+  .animation-delay-500 {
+    animation-delay: 500ms;
+  }
+}
+
+/* Keyframe animations */
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes slide-in-right {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.animate-fade-up {
+  animation: fade-up 0.5s ease-out forwards;
+}
+
+.animate-scale-in {
+  animation: scale-in 0.3s ease-out forwards;
+}
+
+.animate-slide-in-right {
+  animation: slide-in-right 0.4s ease-out forwards;
 }
