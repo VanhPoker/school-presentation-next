@@ -144,6 +144,14 @@ function GameQuizRenderer({
     onAnswer(payload.map((p) => p.hotspots_id));
   };
 
+  // Handler for JSON content updates from Tiptap editor
+  const handleJSONChange = (json: any) => {
+    console.log(
+      "[DEBUG] handleJSONChange called with:",
+      JSON.stringify(json).substring(0, 100) + "...",
+    );
+    handleFillChange(json);
+  };
   // Handler for matching type
   const handleMatchingChange = (payload: any[]) => {
     if (disabled) return;
@@ -228,8 +236,16 @@ function GameQuizRenderer({
             }
             // For drop_box: only push the selected answer_id (not the container hotspot ID)
             else if (question.categoryCode === "drop_box") {
+              console.log(
+                "[DEBUG] extractFilledData drop_box itemDrop:",
+                itemDrop,
+              );
               if (itemDrop.answer_id) {
                 data.push(itemDrop.answer_id);
+              } else {
+                console.log(
+                  "[DEBUG] extractFilledData drop_box NO answer_id found",
+                );
               }
             }
             // Default fallback

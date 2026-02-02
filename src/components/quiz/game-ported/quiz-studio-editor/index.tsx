@@ -181,13 +181,9 @@ export default function QuizStudioEditor({
           handleContentChange(html);
         }
         if (handleJSONChange) {
-          // Logic for updating fill_order/json
-          // Simplification: In playback mode, we don't usually type into the editor to change structure.
-          // But for completeness:
           const parseJsonContent = editor.getJSON().content;
           if (parseJsonContent) {
-            // updateFillDragDrop would run here
-            // We'll skip complex logic for playback unless needed
+            handleJSONChange(JSON.stringify(parseJsonContent));
           }
         }
       }
@@ -246,7 +242,8 @@ export default function QuizStudioEditor({
                 parseContent,
                 is_list,
                 is_practise,
-                id, // Correctly using 'id' as per user's clarification
+                id,
+                codeQuiz, // Pass codeQuiz for proper description formatting
               );
             }
             setTimeout(() => {
@@ -256,12 +253,25 @@ export default function QuizStudioEditor({
               });
             }, 50);
           } else if (parseContent.type === "doc") {
-            // Handle full doc object
-            // Need to traverse to update drag drop if needed?
-            // Logic in Game project mainly handled Array.
-            // We'll assume Array for now as per Game logic.
+            // Handle full doc object - also need to process fill-drag-drop nodes
+            let processedContent = parseContent.content;
+            if (
+              (is_list || is_practise) &&
+              Array.isArray(parseContent.content)
+            ) {
+              processedContent = replaceDescriptionFillDragDrop(
+                parseContent.content,
+                is_list,
+                is_practise,
+                id,
+                codeQuiz, // Pass codeQuiz for proper description formatting
+              );
+            }
             setTimeout(() => {
-              editor.commands.setContent(parseContent);
+              editor.commands.setContent({
+                type: "doc",
+                content: processedContent,
+              });
             }, 50);
           } else {
             // JSON but not Doc or Array? Fallback.

@@ -189,6 +189,8 @@ const QuizPlayer = ({
   // Reset draft answer and timer when question changes
   useEffect(() => {
     setDraftAnswer(null);
+    setMyAnswer(null); // Reset submitted state
+    setResults(null); // Reset feedback state
     setQuestionStartTime(Date.now());
   }, [question?.id]);
 

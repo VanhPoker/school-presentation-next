@@ -86,23 +86,38 @@ export default function useQuizStudioEditor() {
     is_list: boolean | undefined,
     is_practise: boolean | undefined,
     id: string | undefined,
+    codeQuizOverride?: string, // Optional: use this codeQuiz if description doesn't have one
   ) => {
     return items.map((node: any) => {
       if (!node) return node;
       if (InputfillDragDropNodes.includes(node.type)) {
         node.attrs.quizId = id ? id : null;
+
+        // Extract existing codeQuiz from description if exists, or use override
+        let codeQuiz = codeQuizOverride || "";
+        if (
+          node.attrs.description &&
+          typeof node.attrs.description === "string"
+        ) {
+          // Format: "mode - codeQuiz" (e.g., "edit - fill_in_the_blank")
+          const parts = node.attrs.description.split(" - ");
+          if (parts.length > 1) {
+            codeQuiz = parts.slice(1).join(" - "); // Handle codeQuiz with dashes
+          } else {
+            // Maybe description is just the codeQuiz or something else, keep it
+            codeQuiz = node.attrs.description;
+          }
+        }
+
+        // Set description directly based on mode
         if (is_list) {
-          node.attrs.description = node.attrs.description.replace(
-            "edit",
-            "list",
-          );
+          node.attrs.description = "list - " + codeQuiz;
+        } else if (is_practise) {
+          node.attrs.description = "practise - " + codeQuiz;
+        } else {
+          node.attrs.description = "edit - " + codeQuiz;
         }
-        if (is_practise) {
-          node.attrs.description = node.attrs.description.replace(
-            "edit",
-            "practise",
-          );
-        }
+
         return {
           ...node,
         };
@@ -115,6 +130,7 @@ export default function useQuizStudioEditor() {
             is_list,
             is_practise,
             id,
+            codeQuizOverride,
           ),
         };
       }

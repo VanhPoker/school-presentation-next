@@ -60,7 +60,13 @@ const InputPractiseDrop = ({
       if (checkItem) {
         const { id, content } = checkItem;
         setValueSelect(content);
-        if (handleChangeInputValue) handleChangeInputValue(content, id);
+        console.log("[DEBUG] InputPractiseDrop selected:", content, id);
+        if (handleChangeInputValue) {
+          console.log(
+            "[DEBUG] InputPractiseDrop calling handleChangeInputValue",
+          );
+          handleChangeInputValue(content, id);
+        }
       } else {
         setValueSelect("Không tìm thấy");
         if (handleChangeInputValue)

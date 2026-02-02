@@ -105,6 +105,10 @@ export default function InputFillDragDrop({
       });
       if (checkItem) {
         const { fill_order, is_correct } = checkItem;
+        console.log(
+          "[DEBUG] InputFillDragDrop updating attributes for drop:",
+          id,
+        );
         updateAttributes({
           ...node.attrs,
           item_drop: {
