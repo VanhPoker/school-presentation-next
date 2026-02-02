@@ -126,6 +126,7 @@ export default function SlideEditor() {
     loadDeck,
     triggerAutoSave,
     removeElement: removeElementFromBackend,
+    addNewSlide,
   } = useSlidePersistence({
     deckId: deckId || "",
     autoSaveDelayMs: 1500,
@@ -330,12 +331,18 @@ export default function SlideEditor() {
   }, [selectedElementIds]);
 
   // Add Slide Handler
-  const handleAddSlide = () => {
-    addSlide();
-    // Scroll to bottom logic could be added here if we had a ref to the list
-    setTimeout(() => {
-      triggerAutoSave();
-    }, 100);
+  // Add Slide Handler
+  const handleAddSlide = async () => {
+    // Call API first to get real ID
+    const newSlide = await addNewSlide();
+    if (newSlide) {
+      // Update store with real ID
+      addSlide(newSlide);
+      // Wait for state update then trigger autosave
+      setTimeout(() => {
+        triggerAutoSave();
+      }, 100);
+    }
   };
 
   return (

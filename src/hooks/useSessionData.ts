@@ -182,12 +182,12 @@ export function useSessionData({
     setIsLoading(false);
   }, [fetchSession, fetchAttendees, fetchLeaderboard]);
 
-  // Initial fetch
-  useEffect(() => {
-    if (sessionId && enabled) {
-      refreshAll();
-    }
-  }, [sessionId, enabled]);
+  // Initial fetch removed - INITIAL_SYNC from WebSocket provides all data
+  // useEffect(() => {
+  //   if (sessionId && enabled) {
+  //     refreshAll();
+  //   }
+  // }, [sessionId, enabled]);
 
   // WebSocket Connection
   useEffect(() => {
@@ -247,10 +247,17 @@ export function useSessionData({
             setSession((prev) => (prev ? { ...prev, status: "ENDED" } : null));
             break;
 
+          case "INITIAL_SYNC":
           case "SESSION_STARTED":
-            // Load session and slides
+            // Load session, attendees, leaderboard, and slides from single WS message
             if (msg.data.session) {
               setSession(msg.data.session);
+            }
+            if (msg.data.attendees) {
+              setAttendees(msg.data.attendees);
+            }
+            if (msg.data.leaderboard) {
+              setLeaderboard(msg.data.leaderboard);
             }
             if (msg.data.deck?.slides) {
               // Map backend slides to frontend format if needed
@@ -398,6 +405,35 @@ export function useSessionData({
                 : null,
             );
             break;
+
+          case "ATTENDEES_UPDATE":
+            // msg.data = { attendees, participant_count }
+            if (msg.data.attendees) {
+              setAttendees(msg.data.attendees);
+            }
+            if (msg.data.participant_count !== undefined) {
+              setSession((prev) =>
+                prev
+                  ? { ...prev, participant_count: msg.data.participant_count }
+                  : null,
+              );
+            }
+            break;
+
+          case "LEADERBOARD_UPDATE":
+            // msg.data = { leaderboard }
+            if (msg.data.leaderboard) {
+              setLeaderboard(msg.data.leaderboard);
+            }
+            break;
+
+          case "SESSION_ENDED":
+            // msg.data = { leaderboard }
+            setSession((prev) => (prev ? { ...prev, status: "ENDED" } : null));
+            if (msg.data.leaderboard) {
+              setLeaderboard(msg.data.leaderboard);
+            }
+            break;
         }
       } catch (err) {
         console.error("WS Parse Error", err);
@@ -423,6 +459,10 @@ export function useSessionData({
     }
   }, []);
 
+  const endSession = useCallback(() => {
+    sendMessage("END_SESSION", {});
+  }, [sendMessage]);
+
   return {
     session,
     attendees,
@@ -436,6 +476,7 @@ export function useSessionData({
     fetchAttendees,
     fetchLeaderboard,
     sendMessage,
+    endSession,
   };
 }
 

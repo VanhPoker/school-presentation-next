@@ -20,7 +20,12 @@ interface StartSessionButtonProps {
   deckTitle?: string;
 }
 
-interface SessionData {
+import useSessionData from "@/hooks/useSessionData";
+
+// Local interface no longer needed if we use the one from hook, or keep for simplicity but mapped
+// We will rely on the hook's session state generally, but we need local state for the initial creation response
+// before the hook picks it up.
+interface LocalSessionData {
   id: string;
   access_code: string;
   status: string;
@@ -34,48 +39,24 @@ export const StartSessionButton = ({
 }: StartSessionButtonProps) => {
   const [showDialog, setShowDialog] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [session, setSession] = useState<SessionData | null>(null);
+  const [createdSession, setCreatedSession] = useState<LocalSessionData | null>(
+    null,
+  );
+
+  // Use hook for real-time data
+  const { session: liveSession } = useSessionData({
+    sessionId: createdSession?.id,
+    enabled: showDialog && !!createdSession?.id,
+  });
+
+  // Merge created session with live updates
+  const session = liveSession || createdSession;
+
   const [copied, setCopied] = useState(false);
   // const { toast } = useToast();
   const router = useRouter();
 
-  // Poll session data when dialog is open
-  useEffect(() => {
-    if (!showDialog || !session?.id) return;
-
-    const fetchSessionData = async () => {
-      try {
-        const response = await fetch(`${API_URL}/graphql`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            query: `
-              query GetSession($id: ID!) {
-                getSlideSession(id: $id) {
-                  id
-                  access_code
-                  status
-                  participant_count
-                  max_participants
-                }
-              }
-            `,
-            variables: { id: session.id },
-          }),
-        });
-        const result = await response.json();
-        if (!result.errors && result.data?.getSlideSession) {
-          setSession(result.data.getSlideSession);
-        }
-      } catch (err) {
-        console.error("Failed to refresh session:", err);
-      }
-    };
-
-    // Poll every 3 seconds
-    const interval = setInterval(fetchSessionData, 3000);
-    return () => clearInterval(interval);
-  }, [showDialog, session?.id]);
+  // Polling removed in favor of WebSocket via useSessionData
 
   const createSession = async () => {
     setIsLoading(true);
@@ -110,7 +91,7 @@ export const StartSessionButton = ({
         throw new Error(result.errors[0].message);
       }
 
-      setSession(result.data.createSlideSession);
+      setCreatedSession(result.data.createSlideSession);
       // toast({
       //   title: "Phiên đã được tạo!",
       //   description: `Mã tham gia: ${result.data.createSlideSession.access_code}`,

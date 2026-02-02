@@ -358,6 +358,30 @@ export const useLiveSession = (joinCode: string) => {
     }
   };
 
+  // Submit quiz answer via the connected WebSocket
+  const submitAnswer = useCallback(
+    (payload: any) => {
+      if (wsRef.current?.readyState === WebSocket.OPEN) {
+        // Include attendee_id in payload so backend can identify the user
+        const enrichedPayload = {
+          ...payload,
+          attendee_id: attendee?.id || "anonymous",
+        };
+        const message = {
+          event: "SUBMIT_ANSWER",
+          data: enrichedPayload,
+        };
+        console.log("[useLiveSession] Sending SUBMIT_ANSWER:", message);
+        wsRef.current.send(JSON.stringify(message));
+      } else {
+        console.error(
+          "[useLiveSession] WebSocket not connected, cannot submit answer",
+        );
+      }
+    },
+    [attendee?.id],
+  );
+
   // Ensure quizState is exported correctly
   return {
     viewState,
@@ -370,5 +394,6 @@ export const useLiveSession = (joinCode: string) => {
     joinSession,
     leaderboard,
     quizState,
+    submitAnswer, // Add this for QuizPlayer
   };
 };

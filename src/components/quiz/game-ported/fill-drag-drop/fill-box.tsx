@@ -9,12 +9,16 @@ const MediaRender = dynamic(() => import("@/components/base/media-render"), {
 
 import RenderTiptapContent from "@/components/base/render-tiptap-content";
 
-// Stub QuizStudioEditor
-const QuizStudioEditor = ({ content, ...props }: any) => {
-  return (
-    <RenderTiptapContent content={content} id="quiz-studio-editor" {...props} />
-  );
-};
+// Replace stub with real component
+const QuizStudioEditor = dynamic(
+  () => import("@/components/quiz/game-ported/quiz-studio-editor/index"),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="animate-pulse h-20 bg-gray-100 rounded"></div>
+    ),
+  },
+);
 
 const FillBox = ({
   item,

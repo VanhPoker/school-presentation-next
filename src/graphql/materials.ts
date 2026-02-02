@@ -132,14 +132,14 @@ export const DEFAULT_MATERIAL_CATEGORIES_VARIABLES = {
   offset: 0,
   distinct_on: [],
   order_by: [],
-  limit_materials: 10,
+  limit_materials: 1000,
   offset_materials: 0,
   order_by_materials: [{ created_at: "desc" }],
   where_materials: {
     is_published: { _eq: true },
     is_deleted: { _eq: false },
     is_storaged: { _eq: false },
-    is_attachment: { _eq: false },
+
     status: { _eq: true },
   },
 };

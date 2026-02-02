@@ -16,6 +16,8 @@ type QuizPlayerProps = {
   currentUser?: { id: string; name: string };
   timeLimit?: number;
   embedded?: boolean;
+  onSubmitAnswer?: (payload: any) => void;
+  lastAnswerResult?: any; // Result from parent's socket
 };
 
 const QuizPlayer = ({
@@ -24,6 +26,8 @@ const QuizPlayer = ({
   initialQuestion,
   currentUser,
   embedded = false,
+  onSubmitAnswer,
+  lastAnswerResult,
 }: QuizPlayerProps) => {
   // Handle anonymous guest ID
   const [guestId] = useState(() => {
@@ -61,9 +65,10 @@ const QuizPlayer = ({
     }
   }, [initialQuestion]);
 
+  // If initialQuestion is provided, quiz is already active
   const [quizStatus, setQuizStatus] = useState<
     "IDLE" | "ACTIVE" | "STOPPED" | "REVIEW"
-  >("IDLE");
+  >(initialQuestion ? "ACTIVE" : "IDLE");
   const [myAnswer, setMyAnswer] = useState<any>(null);
   const [results, setResults] = useState<any>(null);
   const [totalQuestions, setTotalQuestions] = useState(0);
@@ -71,6 +76,13 @@ const QuizPlayer = ({
   const [isTocOpen, setIsTocOpen] = useState(true);
   const [isMobileTocOpen, setIsMobileTocOpen] = useState(false);
   const [leaderboard, setLeaderboard] = useState<any[]>([]);
+  const [questionStartTime, setQuestionStartTime] = useState<number>(
+    Date.now(),
+  );
+  const [liveStats, setLiveStats] = useState<{
+    submitted: number;
+    total: number;
+  } | null>(null);
 
   // Gamification hooks
   const { play: playSound } = useSoundEffects();
@@ -99,6 +111,7 @@ const QuizPlayer = ({
     setMyAnswer(null);
     setResults(null);
     setQuizStatus("ACTIVE");
+    setQuestionStartTime(Date.now()); // Reset timer when new question syncs
   }, []);
 
   const onQuizStopped = useCallback((data: any) => {
@@ -108,6 +121,15 @@ const QuizPlayer = ({
 
   const onStatsUpdate = useCallback((data: any) => {
     console.log("Stats Update", data);
+    if (
+      data.submitted_count !== undefined &&
+      data.total_participants !== undefined
+    ) {
+      setLiveStats({
+        submitted: data.submitted_count,
+        total: data.total_participants,
+      });
+    }
   }, []);
 
   const onLeaderboardUpdate = useCallback((data: any) => {
@@ -123,6 +145,12 @@ const QuizPlayer = ({
 
       // Only process if this result belongs to me
       if (data.attendee_id && data.attendee_id !== attendeeId) {
+        console.log(
+          "Ignoring result for another attendee:",
+          data.attendee_id,
+          "Me:",
+          attendeeId,
+        );
         return;
       }
 
@@ -158,10 +186,46 @@ const QuizPlayer = ({
 
   const [draftAnswer, setDraftAnswer] = useState<any>(null);
 
-  // Reset draft answer when question changes
+  // Reset draft answer and timer when question changes
   useEffect(() => {
     setDraftAnswer(null);
+    setQuestionStartTime(Date.now());
   }, [question?.id]);
+
+  // React to answer results from parent's socket (lastAnswerResult prop)
+  useEffect(() => {
+    if (!lastAnswerResult) return;
+
+    // Check if this result is for me (or allow if no attendee_id filter)
+    if (
+      lastAnswerResult.attendee_id &&
+      lastAnswerResult.attendee_id !== attendeeId
+    ) {
+      console.log(
+        "[QuizPlayer] Ignoring result for another attendee:",
+        lastAnswerResult.attendee_id,
+        "Me:",
+        attendeeId,
+      );
+      return;
+    }
+
+    console.log("[QuizPlayer] Processing answer result:", lastAnswerResult);
+    setResults(lastAnswerResult);
+
+    // Play sounds and effects
+    if (lastAnswerResult.is_correct) {
+      playSound("correct");
+      if ((lastAnswerResult.streak || 0) >= 3) {
+        playSound("streak");
+        celebrate("streak");
+      } else {
+        celebrate("correct");
+      }
+    } else {
+      playSound("wrong");
+    }
+  }, [lastAnswerResult, attendeeId, playSound, celebrate]);
 
   const handleDraftContentChange = (answer: any[]) => {
     setDraftAnswer(answer);
@@ -171,16 +235,42 @@ const QuizPlayer = ({
     if (quizStatus !== "ACTIVE" || !draftAnswer) return;
     setMyAnswer(draftAnswer);
 
+    // Calculate time taken in milliseconds
+    const timeTaken = Date.now() - questionStartTime;
+
+    // Extract choice_ids from draftAnswer
+    // draftAnswer can be: array of objects with id, array of strings, or single value
+    const extractChoiceIds = (answer: any): string[] => {
+      if (!answer) return [];
+      if (Array.isArray(answer)) {
+        return answer.map((item) => {
+          if (typeof item === "string") return item;
+          if (item?.id) return item.id;
+          if (item?.hotspots_id) return item.hotspots_id;
+          return String(item);
+        });
+      }
+      if (typeof answer === "object" && answer?.id) {
+        return [answer.id];
+      }
+      return [String(answer)];
+    };
+
     // Construct payload matching backend expectation
     const payload = {
-      element_id: slideId, // Use slideId as element context
+      element_id: slideId,
       question_id: question?.id,
-      choice_ids: draftAnswer,
-      time_taken: 0, // TODO: Implement timer tracking
+      choice_ids: extractChoiceIds(draftAnswer),
+      time_taken: timeTaken,
     };
 
     console.log("[QuizPlayer] Submitting answer:", payload);
-    socket.submitAnswer(payload);
+    // Use parent's submit function if provided, otherwise use internal socket
+    if (onSubmitAnswer) {
+      onSubmitAnswer(payload);
+    } else {
+      socket.submitAnswer(payload);
+    }
   };
 
   if (!question && quizStatus !== "STOPPED") {
@@ -305,7 +395,23 @@ const QuizPlayer = ({
               LIVE
             </span>
           </div>
-          {/* Score or other small info could go here */}
+          {/* Live Stats + Mini Leaderboard */}
+          <div className="flex items-center gap-3">
+            {liveStats && (
+              <span className="text-xs text-slate-500 dark:text-slate-400">
+                {liveStats.submitted}/{liveStats.total} submitted
+              </span>
+            )}
+            {leaderboard.length > 0 && (
+              <div className="flex items-center gap-1">
+                <Trophy className="w-4 h-4 text-yellow-500" />
+                <span className="text-xs font-medium text-slate-600 dark:text-slate-300">
+                  {leaderboard[0]?.name?.slice(0, 8) || "Leader"}:{" "}
+                  {Math.round(leaderboard[0]?.score || 0)}
+                </span>
+              </div>
+            )}
+          </div>
         </div>
       )}
 

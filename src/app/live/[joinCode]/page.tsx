@@ -41,7 +41,8 @@ export default function LivePlayerPage({ params }: LivePlayerPageProps) {
     currentSlideIndex,
     joinSession,
     leaderboard,
-    quizState, // Need to expose this from hook
+    quizState,
+    submitAnswer, // Add this for quiz submission
   } = useLiveSession(joinCode);
 
   // Local state for Join Form
@@ -270,6 +271,8 @@ export default function LivePlayerPage({ params }: LivePlayerPageProps) {
                         }}
                         initialQuestion={activeQuestion}
                         embedded={true}
+                        onSubmitAnswer={submitAnswer}
+                        lastAnswerResult={quizState?.lastAnswerResult}
                       />
                     </div>
                   )}
