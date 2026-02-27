@@ -1,0 +1,30 @@
+services:
+  school-presentation-develop:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        ENV: dev
+    container_name: school-presentation-develop
+    env_file:
+      - .env
+    ports:
+      - "18041:3000"
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - NEXT_TELEMETRY_DISABLED=1
+
+  school-presentation-production:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: school-presentation-production
+    env_file:
+      - .env
+    ports:
+      - "18042:3000"
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - NEXT_TELEMETRY_DISABLED=1
